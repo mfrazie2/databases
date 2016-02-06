@@ -1,7 +1,7 @@
 var models = require('../models');
 var bluebird = require('bluebird');
 
-
+//Decide when/how go to database
 
 module.exports = {
   messages: {
