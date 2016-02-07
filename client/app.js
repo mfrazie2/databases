@@ -40,7 +40,7 @@ $(function() {
       app.fetch();
 
       // Poll for new messages
-      setInterval(app.fetch, 3000);
+      //setInterval(app.fetch, 3000);
     },
     send: function(data) {
 
@@ -62,9 +62,9 @@ $(function() {
           // Trigger a fetch to update the messages, pass true to animate
           app.fetch();
         },
-        error: function (data) {
-          console.error('chatterbox: Failed to send message');
-        }
+        // error: function (data) {
+        //   console.error('chatterbox: Failed to send message');
+        // }
       });
     },
     fetch: function(animate) {
@@ -97,10 +97,10 @@ $(function() {
             app.lastMessageId = mostRecentMessage.objectId;
           //}
         },
-        error: function(data) {
-          console.log(data);
-          console.error('chatterbox: Failed to fetch messages');
-        }
+        // error: function(data) {
+        //   console.log(data);
+        //   console.error('chatterbox: Failed to fetch messages');
+        // }
       });
     },
     clearMessages: function() {

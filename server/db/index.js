@@ -6,12 +6,13 @@ var mysql = require('mysql');
 
 //REMEMBER TO START MYSQL SERVER IN TERMINAL TO CONNECT!!!!!
 //NODE IS TRYING TO CONNECT TO MYSQL....SO TURN ON MYSQL
-exports.connection = mysql.createConnection({
+var connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '',
   database: 'chat'
 });
 
+connection.connect();
 
-
+module.exports = connection;

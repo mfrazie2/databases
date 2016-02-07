@@ -11,96 +11,109 @@ module.exports = {
       //fetch data from models
       //return data within callback to account for asynch
 
-      models.messages.pull(function(returnData) {
-        //console.log(returnData);
-        // [{id:, room_id: , user_id: , text: , username: , roomname: }]
-        //returnData = Array.prototype.slice.call(returnData);
-        // Maybe not an array?
-        returnData.forEach(function(message) {
-
-          var username, roomname;
-          message.username = models.users.getName(message.user_id, function(name) {
-            return name;
-          });
-          message.roomname = models.rooms.getName(message.room_id, function(name) {
-            return name;
-          });
-          
-        });
+      models.messages.pull(function(err, returnData) {
+        if(err) {
+          console.error(err);
+        } else {
+          res.json(returnData);
+        }
         
-        console.log("After loop in get " +  returnData);
-        sendResponse(res, returnData);
-      });
+      //   returnData.forEach(function(message) {
+
+      //     var username, roomname;
+      //     message.username = models.users.getName(message.user_id, function(name) {
+      //       return name;
+      //     });
+      //     message.roomname = models.rooms.getName(message.room_id, function(name) {
+      //       return name;
+      //     });
+          
+      //   });
+        
+      //   sendResponse(res, returnData);
+      // });
        
+    });
     }, // a function which handles a get request for all messages
     
     // User wants to add a new message
     post: function (req, res) {
-      console.log("I'm posting!");
-      //console.log(req.body);
-      // req.body looks like this:
-      //{ username: '', text: 'hiiiiiii', roomname: 'lobby' }
-      // Format request from user to send to database
-      models.users.postId(req.body.username, function(id) {return;});
-      models.rooms.postRoomId(req.body.roomname, function(id) {return;});
-      var userId = models.users.getId(req.body.username, function(id) {return id;});
-      var roomId = models.rooms.roomId(req.body.roomname, function(id) {return id;});
+      var params = [req.body.text, req.body.username, req.body.roomname];
+      models.messages.push(params, function(err, returnData) {
+        if(err) {
+          console.error(err);
+        } else {
+          res.json(returnData);
+        }
+      });
       
-      var formattedMessage = {
-        text: req.body.text,
-        id_users: userId,
-        id_roomnames: roomId
-      };
+      
+      // models.users.postId(req.body.username, function(id) {return;});
+      // models.rooms.postRoomId(req.body.roomname, function(id) {return;});
+      // var userId = models.users.getId(req.body.username, function(id) {return id;});
+      // var roomId = models.rooms.roomId(req.body.roomname, function(id) {return id;});
+      
+      // var formattedMessage = {
+      //   text: req.body.text,
+      //   id_users: userId,
+      //   id_roomnames: roomId
+      // };
       
       //Send formatted message along to models
-      models.messages.push(formattedMessage, function(returnData) {
-              sendResponse(res, returnData);
-            });
+      
 
 
     }, // a function which handles posting a message to the database
-    options: function(req, res){
-      sendResponse(res);
-    }
   },
 
   users: {
     // Ditto as above
     get: function (req, res) {
-
+      models.users.get(function(err, returnData) {
+        if(err) {
+          console.error(err);
+        } else {
+          res.json(returnData);
+        }
+      });
     },
-    post: function (req, res) {}
+    post: function (req, res) {
+      var params = [req.body[username]];
+      models.users.post(params, function(err, returnData) {
+        if(err) {
+          console.error(err);
+        } else {
+          res.json(returnData);
+        }
+      });
+    }
   }
 };
 
-// sendResponse
-// gatherData
+// var collectData = function(request, callback) {
+//   var data = '';
+//   request.on('data', function(chunk) {
+//     data += chunk;
+//   });
+//   request.on('end', function() {
+//     callback(JSON.parse(data));
+//   });
+// };
 
+// var sendResponse = function(response, data, statusCode) {
+//   console.log("send response invoked!");
+//   statusCode = statusCode || 200;
+//   response.writeHead(statusCode, headers);
+//   response.end(JSON.stringify(data));
+// };
 
-var collectData = function(request, callback) {
-  var data = '';
-  request.on('data', function(chunk) {
-    data += chunk;
-  });
-  request.on('end', function() {
-    callback(JSON.parse(data));
-  });
-};
-
-var sendResponse = function(response, data, statusCode) {
-  console.log("send response invoked!");
-  statusCode = statusCode || 200;
-  response.writeHead(statusCode, headers);
-  response.end(JSON.stringify(data));
-};
-
-var headers = {
-  "access-control-allow-origin": "*",
-  "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "access-control-allow-headers": "content-type, accept",
-  "access-control-max-age": 10, // Seconds.
-  "Content-type": "application/json"
-};
+// var headers = {
+//   "access-control-allow-origin": "*",
+//   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+//   "access-control-allow-headers": "content-type, accept",
+//   "access-control-max-age": 10, // Seconds.
+//   "Content-type": "application/json"
+// };
 
 // var message = {
     //   username: app.username,
