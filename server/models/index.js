@@ -7,7 +7,7 @@ connection.connect();
 
 module.exports = {
   messages: {
-    get: function (callback) {
+    pull: function (callback) {
         console.log("This is inside models.get");
         // Goes to database to get message information
         connection.query('SELECT * from message', function(err, dataResults) {
@@ -15,30 +15,21 @@ module.exports = {
           if(err){
             console.log("Could not process request.");
           } else {
-            console.log(dataResults);
+            //console.log(dataResults);
             callback(dataResults);
           }
         });
 
     }, // a function which produces all the messages
-    post: function (message, callback) { 
+    push: function (message, callback) { 
       console.log("Inside models post " + message);
-      //{ username: '', text: 'hiiiiiii', roomname: 'lobby' }
-      var formattedMessage = {
-        text: message.text,
-        id_users: userId,
-        id_roomnames: roomId
-      };
-      // take message.username --> id_users
-      var userId = connection.query('SELECT id from users WHERE username = ?', message.username);
-      // take message.roomname --> id_roomnames
-      var roomId = connection.query('SELECT id from roomnames WHERE roomname = ?', message.roomname);
-      connection.query('INSERT into MESSAGE set ?', formattedMessage, function(err, result) {
+     
+      connection.query('INSERT into MESSAGE set ?', message, function(err, result) {
         if (err) {
           console.log(err);
         } else{
           console.log("This is in the database!");
-          console.log(result);
+          //console.log(result);
           callback(result);
         }
       });
@@ -49,8 +40,41 @@ module.exports = {
 
   users: {
     // Ditto as above.
-    get: function () {},
-    post: function () {}
+    // Helps control information putting into database
+    getId: function (name, callback) {
+      // take name --> id_users
+      connection.query('SELECT id from users WHERE username = ?', [name], function(err, id){
+        callback(id);
+      });
+    },
+    postId: function (name, callback) {
+      connection.query('INSERT into users (username) values (', + name + ')', function(err, id) {
+        callback(id);
+      });
+    },
+    getName: function(id, callback) {
+      connection.query('SELECT username from users WHERE id = ?', [id], function(err, name) {
+        callback(name);
+      });
+    }
+  },
+
+  rooms: {
+    roomId: function (room, callback) {
+      connection.query('SELECT id from roomnames WHERE roomname = ?', [room], function(err, id){
+        callback(id); 
+      });
+    },
+    postRoomId: function (room, callback) {
+      connection.query('INSERT into roomnames (roomname) values (', + room + ')', function(err, id){
+        callback(id); 
+      });
+    },
+    getName: function(id, callback) {
+      connection.query('SELECT roomname from roomnames WHERE id = ?', [id], function(err, name) {
+        callback(name);
+      });
+    }
   }
   
   // create a roomname property

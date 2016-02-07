@@ -10,24 +10,54 @@ module.exports = {
     get: function (req, res) {
       //fetch data from models
       //return data within callback to account for asynch
-     // console.log(models);
-      models.messages.get(function(returnData) {
-        console.log(returnData);
+
+      models.messages.pull(function(returnData) {
+        //console.log(returnData);
+        // [{id:, room_id: , user_id: , text: , username: , roomname: }]
+        //returnData = Array.prototype.slice.call(returnData);
+        // Maybe not an array?
+        returnData.forEach(function(message) {
+
+          var username, roomname;
+          message.username = models.users.getName(message.user_id, function(name) {
+            return name;
+          });
+          message.roomname = models.rooms.getName(message.room_id, function(name) {
+            return name;
+          });
+          
+        });
+        
+        console.log("After loop in get " +  returnData);
         sendResponse(res, returnData);
       });
-        // res.end(something with returnData);})
+       
     }, // a function which handles a get request for all messages
     
     // User wants to add a new message
     post: function (req, res) {
       console.log("I'm posting!");
-      console.log(req.body);
-      //collectData(req, function(message) {
-        models.messages.post(req.body, function(returnData) {
-          sendResponse(res, returnData);
-        });
-      //});
-      // collect data(req, function())
+      //console.log(req.body);
+      // req.body looks like this:
+      //{ username: '', text: 'hiiiiiii', roomname: 'lobby' }
+      // Format request from user to send to database
+      models.users.postId(req.body.username, function(id) {return;});
+      models.rooms.postRoomId(req.body.roomname, function(id) {return;});
+      var userId = models.users.getId(req.body.username, function(id) {return id;});
+      var roomId = models.rooms.roomId(req.body.roomname, function(id) {return id;});
+      
+      var formattedMessage = {
+        text: req.body.text,
+        id_users: userId,
+        id_roomnames: roomId
+      };
+      
+      //Send formatted message along to models
+      models.messages.push(formattedMessage, function(returnData) {
+              sendResponse(res, returnData);
+            });
+
+
     }, // a function which handles posting a message to the database
     options: function(req, res){
       sendResponse(res);
@@ -36,7 +66,9 @@ module.exports = {
 
   users: {
     // Ditto as above
-    get: function (req, res) {},
+    get: function (req, res) {
+
+    },
     post: function (req, res) {}
   }
 };

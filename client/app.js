@@ -72,28 +72,29 @@ $(function() {
         url: app.server,
         type: 'GET',
         contentType: 'application/json',
-        data: {},
+        // data: {},
         success: function(data) {
           console.log('chatterbox: Messages fetched');
           //console.log(data);
-          data = JSON.parse(data);
+          //data = JSON.parse(data);
+          //console.log(data);
           // Don't bother if we have nothing to work with
-          // if (!data.results || !data.results.length) { return; }
+          if (!data || !data.length) { return; }
 
-          // // Get the last message
-          // var mostRecentMessage = data.results[data.results.length-1];
-          // var displayedRoom = $('.chat span').first().data('roomname');
-          // //app.stopSpinner();
-          // // Only bother updating the DOM if we have a new message
-          // //if (mostRecentMessage.objectId !== app.lastMessageId || app.roomname !== displayedRoom) {
-          //   // Update the UI with the fetched rooms
-          //   app.populateRooms(data.results);
+          // Get the last message
+          var mostRecentMessage = data[data.length-1];
+          var displayedRoom = $('.chat span').first().data('roomname');
+          //app.stopSpinner();
+          // Only bother updating the DOM if we have a new message
+          //if (mostRecentMessage.objectId !== app.lastMessageId || app.roomname !== displayedRoom) {
+            // Update the UI with the fetched rooms
+            app.populateRooms(data);
 
-          //   // Update the UI with the fetched messages
-          //   app.populateMessages(data.results, animate);
+            // Update the UI with the fetched messages
+            app.populateMessages(data, animate);
 
-          //   // Store the ID of the most recent message
-          //   app.lastMessageId = mostRecentMessage.objectId;
+            // Store the ID of the most recent message
+            app.lastMessageId = mostRecentMessage.objectId;
           //}
         },
         error: function(data) {
@@ -214,7 +215,7 @@ $(function() {
         }
       }
       else {
-        app.startSpinner();
+        //app.startSpinner();
         // Store as undefined for empty names
         app.roomname = app.$roomSelect.val();
 
@@ -224,7 +225,7 @@ $(function() {
     },
     handleSubmit: function(evt) {
       var message = {
-        username: app.username || 'Defined',
+        username: app.username || 'Aimee',
         text: app.$message.val(),
         roomname: app.roomname || 'lobby'
       };
